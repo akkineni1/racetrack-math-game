@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaceTrack Math - Ordinal Numbers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4c1d95;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #4c1d95;
+        }
+
+        .lesson-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        /* Race Track Styles */
+        .race-track {
+            background: #2d3748;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track {
+            height: 400px;
+            position: relative;
+            background: repeating-linear-gradient(
+                90deg,
+                #2d3748,
+                #2d3748 10px,
+                #4a5568 10px,
+                #4a5568 20px
+            );
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 50px;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background: repeating-linear-gradient(
+                180deg,
+                #000 0,
+                #000 10px,
+                #fff 10px,
+                #fff 20px
+            );
+        }
+
+        .car {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .car:hover {
+            transform: scale(1.1);
+        }
+
+        .car.selected {
+            box-shadow: 0 0 20px #fbbf24;
+            transform: scale(1.2);
+        }
+
+        /* Question Panel */
+        .question-panel {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .question {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            padding: 15px 30px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn.correct {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .option-btn.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        /* Interactive Game */
+        .game-area {
+            background: #edf2f7;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .parking-spots {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .parking-spot {
+            height: 100px;
+            border: 3px dashed #cbd5e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+            position: relative;
+        }
+
+        .parking-spot.filled {
+            background: #e6fffa;
+            border-color: #10b981;
+        }
+
+        .draggable-car {
+            width: 80px;
+            height: 40px;
+            border-radius: 10px;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: move;
+            transition: transform 0.2s;
+        }
+
+        .draggable-car:hover {
+            transform: scale(1.1);
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #9f7aea);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Feedback */
+        .feedback {
+            text-align: center;
+            font-size: 20px;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .feedback.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        /* Teacher Dashboard */
+        .dashboard {
+            display: none;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .student-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .student-progress {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .car {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* AI Avatar */
+        .ai-avatar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .ai-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-bubble {
+            position: fixed;
+            bottom: 110px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+            display: none;
+        }
+
+        .ai-bubble.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏁 RaceTrack Math: Ordinal Numbers</h1>
+            <p>Learn positions from 1st to 10th!</p>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('sync')">Teacher Mode</button>
+                <button class="mode-btn" onclick="setMode('async')">Student Mode</button>
+            </div>
+        </div>
+
+        <div class="lesson-content">
+            <!-- Progress Tracker -->
+            <div class="progress-tracker">
+                <h3>Your Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+                </div>
+            </div>
+
+            <!-- Activity 1: Race Track Positions -->
+            <div id="activity1" class="activity">
+                <h2>🏎️ Activity 1: Who's Winning the Race?</h2>
+                <div class="race-track">
+                    <div class="track" id="raceTrack">
+                        <div class="finish-line"></div>
+                        <!-- Cars will be dynamically added -->
+                    </div>
+                </div>
+                
+                <div class="question-panel">
+                    <div class="question" id="question">Click on the car that is in 3rd place!</div>
+                    <div id="feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <!-- Activity 2: Parking Game -->
+            <div id="activity2" class="activity" style="display: none;">
+                <h2>🚗 Activity 2: Park the Cars!</h2>
+                <div class="game-area">
+                    <p>Drag each car to its correct parking spot!</p>
+                    <div class="parking-spots" id="parkingSpots">
+                        <!-- Parking spots will be dynamically added -->
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div id="carsToPark">
+                            <!-- Draggable cars will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Dashboard -->
+            <div id="dashboard" class="dashboard">
+                <h2>📊 Class Progress Dashboard</h2>
+                <div class="student-grid" id="studentGrid">
+                    <!-- Student progress cards will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Helper Avatar -->
+    <div class="ai-avatar" onclick="toggleAIHelp()">🤖</div>
+    <div class="ai-bubble" id="aiBubble">
+        <p id="aiMessage">Hi! I'm here to help you learn about ordinal numbers. Click on any car to hear its position!</p>
+    </div>
+
+    <script>
+        // Game State
+        let currentMode = 'sync';
+        let currentActivity = 1;
+        let score = 0;
+        let totalQuestions = 0;
+        let currentQuestion = null;
+
+        // Car colors and positions
+        const carColors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+        const ordinalWords = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+        const ordinalText = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
+
+        // Initialize the game
+        function initGame() {
+            setupRaceTrack();
+            updateProgress();
+            
+            // Simulate some students for teacher mode
+            if (currentMode === 'sync') {
+                simulateStudentProgress();
+            }
+        }
+
+        // Set up the race track with cars
+        function setupRaceTrack() {
+            const track = document.getElementById('raceTrack');
+            track.innerHTML = '<div class="finish-line"></div>';
+            
+            // Create 6 cars at different positions
+            const positions = [750, 650, 600, 400, 300, 150];
+            positions.forEach((pos, index) => {
+                const car = document.createElement('div');
+                car.className = 'car';
+                car.style.backgroundColor = carColors[index];
+                car.style.left = `${pos}px`;
+                car.style.top = `${60 + index * 60}px`;
+                car.textContent = '🏎️';
+                car.dataset.position = index + 1;
+                car.onclick = () => selectCar(car, index + 1);
+                track.appendChild(car);
+            });
+            
+            // Generate a random question
+            generateQuestion();
+        }
+
+        // Generate a random question
+        function generateQuestion() {
+            const randomPosition = Math.floor(Math.random() * 6) + 1;
+            currentQuestion = randomPosition;
+            document.getElementById('question').textContent = 
+                `Click on the car that is in ${ordinalWords[randomPosition - 1]} place!`;
+        }
+
+        // Handle car selection
+        function selectCar(carElement, position) {
+            // Remove previous selections
+            document.querySelectorAll('.car').forEach(car => car.classList.remove('selected'));
+            carElement.classList.add('selected');
+            
+            // Check answer
+            totalQuestions++;
+            const feedback = document.getElementById('feedback');
+            
+            if (position === currentQuestion) {
+                score++;
+                feedback.className = 'feedback success';
+                feedback.textContent = `Correct! That car is in ${ordinalWords[position - 1]} place!`;
+                
+                // Generate new question after delay
+                setTimeout(() => {
+                    if (totalQuestions < 5) {
+                        generateQuestion();
+                        feedback.style.display = 'none';
+                    } else {
+                        // Move to next activity
+                        moveToActivity2();
+                    }
+                }, 2000);
+            } else {
+                feedback.className = 'feedback error';
+                feedback.textContent = `Try again! That car is in ${ordinalWords[position - 1]} place.`;
+            }
+            
+            updateProgress();
+        }
+
+        // Move to Activity 2
+        function moveToActivity2() {
+            document.getElementById('activity1').style.display = 'none';
+            document.getElementById('activity2').style.display = 'block';
+            setupParkingGame();
+        }
+
+        // Set up parking game
+        function setupParkingGame() {
+            const parkingSpots = document.getElementById('parkingSpots');
+            const carsToPark = document.getElementById('carsToPark');
+            
+            // Create parking spots
+            parkingSpots.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const spot = document.createElement('div');
+                spot.className = 'parking-spot';
+                spot.textContent = ordinalWords[i];
+                spot.dataset.position = i + 1;
+                spot.ondrop = (e) => drop(e);
+                spot.ondragover = (e) => allowDrop(e);
+                parkingSpots.appendChild(spot);
+            }
+            
+            // Create draggable cars (shuffled)
+            carsToPark.innerHTML = '';
+            const shuffledPositions = [...Array(10).keys()].sort(() => Math.random() - 0.5);
+            shuffledPositions.slice(0, 5).forEach((pos) => {
+                const car = document.createElement('div');
+                car.className = 'draggable-car';
+                car.style.backgroundColor = carColors[pos % carColors.length];
+                car.textContent = ordinalText[pos];
+                car.draggable = true;
+                car.dataset.position = pos + 1;
+                car.ondragstart = (e) => drag(e);
+                carsToPark.appendChild(car);
+            });
+        }
+
+        // Drag and drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("position", ev.target.dataset.position);
+            ev.dataTransfer.setData("element", ev.target.outerHTML);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const position = ev.dataTransfer.getData("position");
+            const spotPosition = ev.target.dataset.position;
+            
+            if (position === spotPosition) {
+                ev.target.classList.add('filled');
+                ev.target.innerHTML = ev.dataTransfer.getData("element");
+                score++;
+                updateProgress();
+                
+                // Check if all cars are parked
+                if (document.querySelectorAll('.parking-spot.filled').length === 5) {
+                    showCompletionMessage();
+                }
+            } else {
+                showAIHint(`That's the ${ordinalText[position - 1]} car. Try parking it in the ${ordinalWords[position - 1]} spot!`);
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = Math.round((score / 10) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${progress}%`;
+        }
+
+        // Set mode (sync/async)
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'sync') {
+                document.getElementById('dashboard').style.display = 'block';
+                simulateStudentProgress();
+            } else {
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        }
+
+        // Simulate student progress for teacher mode
+        function simulateStudentProgress() {
+            const studentGrid = document.getElementById('studentGrid');
+            const students = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan'];
+            
+            studentGrid.innerHTML = '';
+            students.forEach(name => {
+                const progress = Math.floor(Math.random() * 100);
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <div class="student-name">${name}</div>
+                    <div class="student-progress">Progress: ${progress}%</div>
+                    <div style="margin-top: 5px;">
+                        <div class="progress-bar" style="height: 10px;">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+                studentGrid.appendChild(card);
+            });
+        }
+
+        // AI Helper functions
+        function toggleAIHelp() {
+            const bubble = document.getElementById('aiBubble');
+            bubble.classList.toggle('show');
+        }
+
+        function showAIHint(message) {
+            document.getElementById('aiMessage').textContent = message;
+            document.getElementById('aiBubble').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('aiBubble').classList.remove('show');
+            }, 3000);
+        }
+
+        function showCompletionMessage() {
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback success';
+            feedback.textContent = '🎉 Excellent! You\'ve mastered ordinal numbers!';
+            feedback.style.display = 'block';
+            document.getElementById('activity2').appendChild(feedback);
+        }
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
